@@ -1,4 +1,5 @@
 <?php
+
 return [
     'name'        => 'Rest API Mailer Extension',
     'description' => 'This is a Mautic Extension that supports a new Email Configuration where Email are sent to a REST API.',
@@ -8,7 +9,10 @@ return [
     'services'    => [
         'other'     => [
             'mautic_integration.rest_api.dto.convertor' => [
-                'class' => \MauticPlugin\MauticRestApiMailerBundle\Swiftmailer\MailDTOConvertor::class
+                'class'     => \MauticPlugin\MauticRestApiMailerBundle\Swiftmailer\MailDTOConvertor::class,
+                'arguments' => [
+                    '@mautic.helper.plain_text_message',
+                ],
             ],
             'mautic_integration.rest_api.guzzle.client' => [
                 'class' => 'GuzzleHttp\Client',
@@ -17,10 +21,10 @@ return [
                 'class'        => \MauticPlugin\MauticRestApiMailerBundle\Swiftmailer\Transport\RestApiTransport::class,
                 'arguments'    => [
                     'mautic_integration.rest_api.guzzle.client',
-                    'mautic_integration.rest_api.dto.convertor',
+                    '@mautic_integration.rest_api.dto.convertor',
                     '%mautic.mailer_host%',
                     '%mautic.mailer_user%',
-                    '%mautic.mailer_password%'
+                    '%mautic.mailer_password%',
                 ],
                 'tag'          => 'mautic.email_transport',
                 'tagArguments' => [
@@ -31,7 +35,7 @@ return [
                     \Mautic\EmailBundle\Model\TransportType::FIELD_USER      => true,
                     \Mautic\EmailBundle\Model\TransportType::FIELD_PASSWORD  => true,
                 ],
-            ]
+            ],
         ],
-    ]
+    ],
 ];

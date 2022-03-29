@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace MauticPlugin\MauticRestApiMailerBundle\Swiftmailer\Transport;
 
 use GuzzleHttp\Client;
+use GuzzleHttp\Exception\GuzzleException;
 use MauticPlugin\MauticRestApiMailerBundle\Swiftmailer\MailDTOConvertor;
 use Swift_Events_EventListener;
 use Swift_Mime_SimpleMessage;
@@ -26,10 +27,10 @@ class RestApiTransport implements \Swift_Transport
         ?string $username,
         ?string $password)
     {
-        $this->host = $host;
-        $this->username = $username;
-        $this->password = $password;
-        $this->client = $client;
+        $this->host             = $host;
+        $this->username         = $username;
+        $this->password         = $password;
+        $this->client           = $client;
         $this->mailDTOConvertor = $mailDTOConvertor;
     }
 
@@ -55,15 +56,22 @@ class RestApiTransport implements \Swift_Transport
     public function send(Swift_Mime_SimpleMessage $message, &$failedRecipients = null)
     {
         $dto = $this->mailDTOConvertor->toMailDTO($message);
-        $response = $this->client->post(
-            $this->host,
-            [
-                'auth' => [
-                    $this->username, $this->password
-                ],
-                'json' => $dto,
-            ]
-        );
+
+        try {
+             $this->client->post(
+                $this->host,
+                [
+                    'auth' => [
+                        $this->username, $this->password,
+                    ],
+                    'json' => $dto,
+                ]
+            );
+        } catch (GuzzleException $exception) {
+            throw new \Swift_TransportException($exception->getMessage());
+        }
+
+        return count($message->getTo());
     }
 
     public function registerPlugin(Swift_Events_EventListener $plugin)

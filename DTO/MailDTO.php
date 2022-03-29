@@ -8,12 +8,14 @@ class MailDTO implements \JsonSerializable
 {
     public $from;
     public $to;
+    public $cc;
+    public $bcc;
     public $subject;
     public $contents;
     public $attachments;
     public $replyTo;
     public $headers;
-    public $sections;
+    public $metadata;
 
     public function jsonSerialize()
     {
@@ -21,15 +23,17 @@ class MailDTO implements \JsonSerializable
             [
                 'from'              => $this->from,
                 'to'                => $this->to,
+                'cc'                => $this->cc,
+                'bcc'               => $this->bcc,
                 'subject'           => $this->subject,
                 'content'           => $this->contents,
                 'attachments'       => $this->attachments,
-                'sections'          => $this->sections,
                 'headers'           => $this->headers,
-                'reply_to'          => $this->replyTo
+                'reply_to'          => $this->replyTo,
+                'metadata'          => $this->metadata,
             ],
             function ($value) {
-                return $value !== null;
+                return null !== $value;
             }
         ) ?: null;
     }
