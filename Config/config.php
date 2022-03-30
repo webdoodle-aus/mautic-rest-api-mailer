@@ -7,11 +7,35 @@ return [
     'author'      => 'WebDoodle',
     'routes'      => [],
     'services'    => [
+        'integrations' => [
+            'mautic.integration.restapimailer' => [
+                'class'     => \MauticPlugin\MauticRestApiMailerBundle\Integration\RestApiMailerIntegration::class,
+                'arguments' => [
+                    'event_dispatcher',
+                    'mautic.helper.cache_storage',
+                    'doctrine.orm.entity_manager',
+                    'session',
+                    'request_stack',
+                    'router',
+                    'translator',
+                    'logger',
+                    'mautic.helper.encryption',
+                    'mautic.lead.model.lead',
+                    'mautic.lead.model.company',
+                    'mautic.helper.paths',
+                    'mautic.core.model.notification',
+                    'mautic.lead.model.field',
+                    'mautic.plugin.model.integration_entity',
+                    'mautic.lead.model.dnc',
+                ],
+            ],
+        ],
         'other'     => [
             'mautic_integration.rest_api.dto.convertor' => [
                 'class'     => \MauticPlugin\MauticRestApiMailerBundle\Swiftmailer\MailDTOConvertor::class,
                 'arguments' => [
                     '@mautic.helper.plain_text_message',
+                    '@mautic.helper.integration',
                 ],
             ],
             'mautic_integration.rest_api.guzzle.client' => [

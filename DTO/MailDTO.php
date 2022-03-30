@@ -16,10 +16,11 @@ class MailDTO implements \JsonSerializable
     public $replyTo;
     public $headers;
     public $metadata;
+    public $additionalProperties = [];
 
     public function jsonSerialize()
     {
-        return array_filter(
+        $properties = array_filter(
             [
                 'from'              => $this->from,
                 'to'                => $this->to,
@@ -35,6 +36,12 @@ class MailDTO implements \JsonSerializable
             function ($value) {
                 return null !== $value;
             }
-        ) ?: null;
+        );
+
+        if (!empty($this->additionalProperties)) {
+            $properties = array_merge($properties, $this->additionalProperties);
+        }
+
+        return $properties;
     }
 }

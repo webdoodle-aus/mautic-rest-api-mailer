@@ -6,18 +6,22 @@ namespace MauticPlugin\MauticRestApiMailerBundle\Swiftmailer;
 
 use Mautic\EmailBundle\Helper\PlainTextMessageHelper;
 use Mautic\EmailBundle\Swiftmailer\Message\MauticMessage;
+use Mautic\PluginBundle\Helper\IntegrationHelper;
 use MauticPlugin\MauticRestApiMailerBundle\DTO\AttachmentDTO;
 use MauticPlugin\MauticRestApiMailerBundle\DTO\ContentDTO;
 use MauticPlugin\MauticRestApiMailerBundle\DTO\HeaderDTO;
 use MauticPlugin\MauticRestApiMailerBundle\DTO\MailDTO;
+use MauticPlugin\MauticRestApiMailerBundle\Integration\RestApiMailerIntegration;
 
 class MailDTOConvertor
 {
     private PlainTextMessageHelper $plainTextMessageHelper;
+    private IntegrationHelper $integrationHelper;
 
-    public function __construct(PlainTextMessageHelper $plainTextMessageHelper)
+    public function __construct(PlainTextMessageHelper $plainTextMessageHelper, IntegrationHelper $integrationHelper)
     {
         $this->plainTextMessageHelper = $plainTextMessageHelper;
+        $this->integrationHelper      = $integrationHelper;
     }
 
     public function toMailDTO(\Swift_Mime_SimpleMessage $message): MailDTO
@@ -33,6 +37,14 @@ class MailDTOConvertor
         $dto->attachments = $this->getAttachments($message);
         $dto->metadata    = $this->getMetadata($message);
         $dto->headers     = $this->getHeaders($message);
+
+        $integration = $this->integrationHelper->getIntegrationObject(RestApiMailerIntegration::NAME);
+        if ($integration) {
+            $settings = $integration->getIntegrationSettings()->getFeatureSettings();
+            if (array_key_exists('custom_body_properties', $settings) && !empty($settings['custom_body_properties'])) {
+                $dto->additionalProperties = $settings['custom_body_properties'];
+            }
+        }
 
         return $dto;
     }

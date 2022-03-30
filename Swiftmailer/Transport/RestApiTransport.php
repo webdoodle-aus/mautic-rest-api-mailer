@@ -58,7 +58,7 @@ class RestApiTransport implements \Swift_Transport
         $dto = $this->mailDTOConvertor->toMailDTO($message);
 
         try {
-             $this->client->post(
+            $this->client->post(
                 $this->host,
                 [
                     'auth' => [
